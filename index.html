@@ -14,7 +14,7 @@
     --line:rgba(42,36,29,.22); --pp:238,229,212;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
-  html{scroll-behavior:smooth;scroll-snap-type:y mandatory;}
+  html{scroll-behavior:smooth;}
   body{background:var(--paper);font-family:"Noto Serif SC",serif;color:var(--ink);overflow-x:hidden;}
 
   /* 顶部进度条 */
@@ -33,8 +33,7 @@
   #dots a:hover span{opacity:1;}
 
   /* 区块 */
-  .panel{position:relative;min-height:100vh;overflow:hidden;display:flex;align-items:center;
-    scroll-snap-align:start;scroll-snap-stop:always;}
+  .panel{position:relative;min-height:100vh;overflow:hidden;display:flex;align-items:center;}
   .bg{position:absolute;inset:-6% -2%;z-index:0;will-change:transform;}
   .bg-inner{position:absolute;inset:0;background-size:cover;background-position:center;
     transform:scale(1.02);transition:transform 9s ease-out;will-change:transform;}
@@ -328,8 +327,9 @@
   document.querySelectorAll('img[data-d]').forEach(im=>{
     const d=im.dataset.d;
     im.referrerPolicy='no-referrer';im.loading='lazy';
-    im.src='https://icons.duckduckgo.com/ip3/'+d+'.ico';
-    im.onerror=()=>{im.onerror=null;im.src='https://www.google.com/s2/favicons?domain='+d+'&sz=128';};
+    im.src='https://unavatar.io/'+d;
+    im.onerror=()=>{im.onerror=null;im.src='https://www.google.com/s2/favicons?domain='+d+'&sz=128';
+      im.onerror=()=>{im.onerror=null;im.src='https://icons.duckduckgo.com/ip3/'+d+'.ico';};};
   });
 
   const panels=[...document.querySelectorAll('.panel')];
