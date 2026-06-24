@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>哈萨克斯坦日常手机应用 · 滚动演示 · IBRAGIMOVA AIGERIM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Noto+Serif+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#2a241d; --ink-soft:#5f564a;
+    --paper:#eee5d4; --gold:#9c7f49; --seal:#a8392e;
+    --line:rgba(42,36,29,.22); --pp:238,229,212;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;scroll-snap-type:y mandatory;}
+  body{background:var(--paper);font-family:"Noto Serif SC",serif;color:var(--ink);overflow-x:hidden;}
+
+  /* 顶部进度条 */
+  #progress{position:fixed;top:0;left:0;height:3px;width:0;z-index:100;
+    background:linear-gradient(90deg,var(--gold),var(--seal));transition:width .1s linear;}
+
+  /* 右侧导航点 */
+  #dots{position:fixed;right:26px;top:50%;transform:translateY(-50%);z-index:90;
+    display:flex;flex-direction:column;gap:14px;}
+  #dots a{width:11px;height:11px;border-radius:50%;border:1px solid rgba(42,36,29,.5);
+    background:transparent;transition:.3s;position:relative;}
+  #dots a.active{background:var(--seal);border-color:var(--seal);transform:scale(1.25);}
+  #dots a span{position:absolute;right:20px;top:50%;transform:translateY(-50%);
+    white-space:nowrap;font-size:.72rem;letter-spacing:.2em;color:var(--ink-soft);
+    opacity:0;pointer-events:none;transition:.3s;background:rgba(238,229,212,.85);padding:2px 8px;border-radius:3px;}
+  #dots a:hover span{opacity:1;}
+
+  /* 区块 */
+  .panel{position:relative;min-height:100vh;overflow:hidden;display:flex;align-items:center;
+    scroll-snap-align:start;scroll-snap-stop:always;}
+  .bg{position:absolute;inset:-6% -2%;z-index:0;will-change:transform;}
+  .bg-inner{position:absolute;inset:0;background-size:cover;background-position:center;
+    transform:scale(1.02);transition:transform 9s ease-out;will-change:transform;}
+  .panel.in .bg-inner{transform:scale(1.12);}
+  video.bg-inner{object-fit:cover;width:100%;height:100%;}
+
+  .veil{position:absolute;inset:0;z-index:1;pointer-events:none;background:
+      linear-gradient(90deg, rgba(var(--pp),1) 0%, rgba(var(--pp),.92) 22%, rgba(var(--pp),.45) 52%, rgba(var(--pp),0) 80%),
+      linear-gradient(180deg, rgba(var(--pp),.7) 0%, rgba(var(--pp),0) 22%, rgba(var(--pp),0) 78%, rgba(var(--pp),.55) 100%);}
+  .grain{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:.05;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");}
+  .vignette{position:absolute;inset:0;z-index:2;pointer-events:none;box-shadow:inset 0 0 16vh rgba(40,33,25,.20);}
+
+  .num{position:absolute;right:4%;top:12%;z-index:2;font-family:"Cormorant Garamond",serif;
+    font-weight:500;font-size:34vh;line-height:.8;color:transparent;
+    -webkit-text-stroke:1.5px rgba(156,127,73,.28);user-select:none;pointer-events:none;}
+
+  .wrap{position:relative;z-index:4;width:100%;max-width:1240px;margin:0 auto;padding:0 7vw;}
+  .content{max-width:62%;}
+
+  .kicker{display:flex;gap:1.4em;align-items:baseline;font-family:"Cormorant Garamond",serif;
+    letter-spacing:.24em;text-transform:uppercase;font-size:.95rem;color:var(--ink-soft);
+    border-bottom:1px solid var(--line);padding-bottom:1.1vh;margin-bottom:3vh;max-width:max-content;}
+  .kicker .zh{font-family:"Noto Serif SC";letter-spacing:.34em;}
+
+  h2{font-weight:500;font-size:clamp(28px,5vh,56px);letter-spacing:.05em;line-height:1.2;
+    text-shadow:0 1px 3px rgba(255,250,240,.6);}
+  h2 .en{display:block;font-family:"Cormorant Garamond",serif;font-style:italic;font-weight:400;
+    font-size:clamp(16px,2.8vh,30px);letter-spacing:.1em;color:var(--gold);margin-top:.5vh;}
+
+  /* 毛笔笔触 */
+  .stroke{display:block;width:min(380px,40vw);height:22px;margin:2.4vh 0 0;}
+  .stroke path{fill:none;stroke:var(--seal);stroke-width:6;stroke-linecap:round;opacity:.75;
+    stroke-dasharray:600;stroke-dashoffset:600;transition:stroke-dashoffset 1.3s ease .25s;}
+  .panel.in .stroke path{stroke-dashoffset:0;}
+
+  .lead{margin-top:3vh;font-weight:300;font-size:clamp(16px,2.6vh,24px);line-height:1.75;color:var(--ink-soft);}
+
+  ul.items{list-style:none;margin-top:3.5vh;}
+  ul.items li{padding:1.9vh 0;border-bottom:1px solid var(--line);display:flex;flex-direction:column;}
+  ul.items li .row{display:flex;align-items:center;gap:1.4vh;}
+  .badge{flex:0 0 auto;width:4.6vh;height:4.6vh;border-radius:12px;background:#fbf7ee;
+    display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(42,36,29,.16);
+    border:1px solid rgba(42,36,29,.12);overflow:hidden;}
+  .badge.multi{width:auto;gap:.5vh;padding:0 .5vh;background:transparent;border:none;box-shadow:none;}
+  .badge img{width:3.4vh;height:3.4vh;object-fit:contain;display:block;}
+  .badge.multi img{width:4.6vh;height:4.6vh;padding:.7vh;border-radius:12px;background:#fbf7ee;
+    box-shadow:0 2px 8px rgba(42,36,29,.16);border:1px solid rgba(42,36,29,.12);}
+  .badge.num{font-family:"Cormorant Garamond",serif;font-size:2.3vh;color:var(--gold);background:rgba(251,247,238,.5);}
+  ul.items li .h{font-weight:500;font-size:clamp(18px,3vh,28px);letter-spacing:.03em;
+    text-shadow:0 1px 2px rgba(255,250,240,.5);}
+  ul.items li .h .en{font-family:"Cormorant Garamond",serif;font-style:italic;font-weight:400;
+    color:var(--ink-soft);font-size:clamp(13px,2.1vh,20px);margin-left:.55em;}
+  ul.items li .d{font-weight:300;font-size:clamp(14px,2vh,19px);color:var(--ink-soft);
+    margin-top:.7vh;padding-left:6vh;}
+
+  /* 揭示动画 */
+  .reveal{opacity:0;transform:translateY(34px);transition:opacity .9s ease,transform .9s cubic-bezier(.2,.7,.2,1);
+    transition-delay:var(--d,0s);}
+  .panel.in .reveal{opacity:1;transform:none;}
+
+  .seal{position:absolute;z-index:5;width:9vh;height:9vh;border:2px solid var(--seal);border-radius:4px;
+    display:flex;align-items:center;justify-content:center;color:var(--seal);font-size:3.6vh;font-weight:600;
+    line-height:1.05;text-align:center;transform:rotate(-3deg);opacity:.9;background:rgba(168,57,46,.06);
+    box-shadow:inset 0 0 0 4px rgba(168,57,46,.1);}
+
+  /* 封面 */
+  .hero .content{max-width:100%;}
+  .hero{align-items:center;text-align:center;}
+  .hero .wrap{display:flex;flex-direction:column;align-items:center;}
+  .topmark{font-family:"Cormorant Garamond",serif;letter-spacing:.4em;text-transform:uppercase;
+    font-size:1rem;color:var(--gold);margin-bottom:4vh;}
+  .author{font-family:"Cormorant Garamond",serif;font-size:clamp(24px,4.4vh,46px);font-weight:600;letter-spacing:.16em;
+    text-shadow:0 1px 3px rgba(255,250,240,.6);}
+  .author .zh{font-family:"Noto Serif SC";font-weight:400;letter-spacing:.2em;font-size:.72em;margin-left:.3em;color:var(--ink-soft);}
+  .uni{margin-top:1.2vh;font-weight:300;font-size:clamp(15px,2.3vh,22px);letter-spacing:.12em;color:var(--ink-soft);}
+  .uni .en{display:block;font-family:"Cormorant Garamond",serif;font-style:italic;font-size:.86em;
+    letter-spacing:.14em;color:var(--gold);margin-top:.4vh;}
+  .divider{width:14vh;height:1px;background:var(--line);margin:4.5vh auto;position:relative;}
+  .divider::after{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:7px;height:7px;background:var(--gold);border-radius:50%;}
+  .hero h1{font-weight:500;font-size:clamp(30px,6vh,68px);line-height:1.45;letter-spacing:.06em;max-width:18em;
+    text-shadow:0 1px 5px rgba(255,250,240,.75);}
+  .hero h1 .mark{color:var(--seal);}
+  .sub-en{margin-top:2.6vh;font-family:"Cormorant Garamond",serif;font-style:italic;
+    font-size:clamp(15px,2.2vh,24px);letter-spacing:.08em;color:var(--ink-soft);}
+  .scrolldown{position:absolute;bottom:5vh;left:50%;transform:translateX(-50%);z-index:5;
+    font-family:"Cormorant Garamond",serif;letter-spacing:.2em;text-transform:uppercase;font-size:.8rem;
+    color:var(--ink-soft);display:flex;flex-direction:column;align-items:center;gap:10px;}
+  .scrolldown .arrow{width:1px;height:42px;background:linear-gradient(var(--ink-soft),transparent);
+    animation:flow 1.8s ease-in-out infinite;}
+  @keyframes flow{0%{opacity:.2;transform:scaleY(.4);transform-origin:top}50%{opacity:1;transform:scaleY(1)}100%{opacity:.2;transform:scaleY(.4);transform-origin:bottom}}
+
+  /* 总结卡片 */
+  .grid{display:flex;gap:4%;margin-top:3.5vh;}
+  .card{flex:1;border-top:2px solid var(--gold);padding:2.2vh 1.4vh 0;
+    background:linear-gradient(180deg,rgba(255,250,240,.5),rgba(255,250,240,.08));border-radius:0 0 3px 3px;}
+  .card .n{font-family:"Cormorant Garamond",serif;font-size:2.1vh;color:var(--gold);letter-spacing:.1em;}
+  .card h3{font-weight:500;font-size:clamp(17px,2.7vh,24px);margin:.8vh 0;}
+  .card p{font-weight:300;font-size:clamp(13px,1.9vh,18px);line-height:1.6;color:var(--ink-soft);}
+
+  @media (max-width:760px){
+    .content{max-width:100%;}
+    .veil{background:linear-gradient(180deg,rgba(var(--pp),.92),rgba(var(--pp),.55) 60%,rgba(var(--pp),.9));}
+    .grid{flex-direction:column;gap:2.5vh;}
+    #dots{display:none;}
+    .num{font-size:22vh;opacity:.6;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .reveal{opacity:1;transform:none;} .bg-inner{transition:none;}
+  }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<nav id="dots"></nav>
+
+<!-- 1 · 封面 (视频) -->
+<section class="panel hero in" data-label="封面">
+  <div class="bg"><video class="bg-inner" src="ppt-bg/hero.mp4" autoplay muted loop playsinline poster="ppt-bg/web/cover.jpg"></video></div>
+  <div class="veil" style="background:linear-gradient(90deg,rgba(238,229,212,.72),rgba(238,229,212,.4) 55%,rgba(238,229,212,.15));"></div>
+  <div class="grain"></div><div class="vignette"></div>
+  <div class="seal" style="right:7%;top:9%;">日常<br>之用</div>
+  <div class="wrap">
+    <div class="topmark reveal">Mobile Life · Kazakhstan</div>
+    <div class="author reveal" style="--d:.1s">IBRAGIMOVA AIGERIM<span class="zh">艾美</span></div>
+    <div class="uni reveal" style="--d:.2s">哈萨克国立大学（KazNU）学生<span class="en">Al-Farabi Kazakh National University</span></div>
+    <div class="divider reveal" style="--d:.3s"></div>
+    <h1 class="reveal" style="--d:.4s">我们在<span class="mark">哈萨克斯坦</span>日常生活中<br>最常使用的手机应用</h1>
+    <div class="sub-en reveal" style="--d:.55s">The Mobile Applications We Use Most in Everyday Life</div>
+  </div>
+  <div class="scrolldown"><span>向下滚动 · Scroll</span><span class="arrow"></span></div>
+</section>
+
+<!-- 2 · 引言 -->
+<section class="panel" data-label="引言">
+  <div class="bg"><div class="bg-inner" style="background-image:url('ppt-bg/web/intro.jpg')"></div></div>
+  <div class="veil"></div><div class="grain"></div><div class="vignette"></div>
+  <div class="num">01</div>
+  <div class="wrap"><div class="content">
+    <div class="kicker reveal"><span class="zh">引言</span><span>Introduction</span></div>
+    <h2 class="reveal" style="--d:.1s">智能手机：日常生活的中心<span class="en">The Phone at the Center of Daily Life</span></h2>
+    <svg class="stroke" viewBox="0 0 380 22" preserveAspectRatio="none"><path d="M6 14 Q90 2 180 11 T374 8"/></svg>
+    <p class="lead reveal" style="--d:.2s">在哈萨克斯坦，智能手机已深度融入生活的每一个角落——从支付、出行，到社交、政务与学习。一部手机几乎可以完成一整天的日常事务。</p>
+    <p class="lead reveal" style="--d:.32s">本次展示将带你走过我们每天最常打开的几类应用，并看看它们如何悄然改变着这个国家的生活方式。</p>
+  </div></div>
+</section>
+
+<!-- 3 · 金融 -->
+<section class="panel" data-label="金融">
+  <div class="bg"><div class="bg-inner" style="background-image:url('ppt-bg/web/finance.jpg')"></div></div>
+  <div class="veil"></div><div class="grain"></div><div class="vignette"></div>
+  <div class="num">02</div>
+  <div class="wrap"><div class="content">
+    <div class="kicker reveal"><span class="zh">金融与支付</span><span>Finance &amp; Payment</span></div>
+    <h2 class="reveal" style="--d:.1s">金融类应用<span class="en">The Backbone of Daily Transactions</span></h2>
+    <svg class="stroke" viewBox="0 0 380 22" preserveAspectRatio="none"><path d="M6 12 Q100 4 200 13 T374 9"/></svg>
+    <ul class="items">
+      <li class="reveal" style="--d:.15s"><div class="row"><span class="badge"><img data-d="kaspi.kz" alt="Kaspi"></span><span class="h">Kaspi.kz<span class="en">核心金融超级应用</span></span></div><span class="d">支付、转账、商城、信贷集于一身，几乎人手必备。</span></li>
+      <li class="reveal" style="--d:.27s"><div class="row"><span class="badge"><img data-d="halykbank.kz" alt="Halyk Bank"></span><span class="h">银行卡支付<span class="en">Halyk Bank / 非接触支付</span></span></div><span class="d">扫码与 NFC 非接触支付已成为线下消费的默认方式。</span></li>
+      <li class="reveal" style="--d:.39s"><div class="row"><span class="badge num">03</span><span class="h">移动支付的作用<span class="en">A Cashless Society</span></span></div><span class="d">从街边小店到公共服务，现金正被快速取代。</span></li>
+    </ul>
+  </div></div>
+</section>
+
+<!-- 4 · 社交 -->
+<section class="panel" data-label="社交">
+  <div class="bg"><div class="bg-inner" style="background-image:url('ppt-bg/web/social.jpg')"></div></div>
+  <div class="veil"></div><div class="grain"></div><div class="vignette"></div>
+  <div class="num">03</div>
+  <div class="wrap"><div class="content">
+    <div class="kicker reveal"><span class="zh">社交与通讯</span><span>Social &amp; Communication</span></div>
+    <h2 class="reveal" style="--d:.1s">社交与通讯应用<span class="en">How We Stay Connected</span></h2>
+    <svg class="stroke" viewBox="0 0 380 22" preserveAspectRatio="none"><path d="M6 10 Q120 18 220 8 T374 12"/></svg>
+    <ul class="items">
+      <li class="reveal" style="--d:.15s"><div class="row"><span class="badge"><img data-d="whatsapp.com" alt="WhatsApp"></span><span class="h">WhatsApp<span class="en">日常沟通首选</span></span></div><span class="d">家庭、工作、学习的主要即时通讯工具。</span></li>
+      <li class="reveal" style="--d:.25s"><div class="row"><span class="badge multi"><img data-d="instagram.com" alt="Instagram"><img data-d="tiktok.com" alt="TikTok"></span><span class="h">Instagram &amp; TikTok<span class="en">视觉社交</span></span></div><span class="d">分享生活、关注潮流与本地商家。</span></li>
+      <li class="reveal" style="--d:.35s"><div class="row"><span class="badge"><img data-d="telegram.org" alt="Telegram"></span><span class="h">Telegram<span class="en">资讯与社群</span></span></div><span class="d">新闻频道、社群与文件传输的重要平台。</span></li>
+      <li class="reveal" style="--d:.45s"><div class="row"><span class="badge multi"><img data-d="vk.com" alt="VK"><img data-d="linkedin.com" alt="LinkedIn"></span><span class="h">VK &amp; LinkedIn<span class="en">社交与职业网络</span></span></div><span class="d">VK 维系俄语社群，LinkedIn 用于职业发展。</span></li>
+    </ul>
+  </div></div>
+</section>
+
+<!-- 5 · 出行 -->
+<section class="panel" data-label="出行">
+  <div class="bg"><div class="bg-inner" style="background-image:url('ppt-bg/web/transport.jpg');background-position:center bottom"></div></div>
+  <div class="veil"></div><div class="grain"></div><div class="vignette"></div>
+  <div class="num">04</div>
+  <div class="wrap"><div class="content">
+    <div class="kicker reveal"><span class="zh">出行与交通</span><span>Mobility &amp; Transport</span></div>
+    <h2 class="reveal" style="--d:.1s">出行与交通应用<span class="en">Moving Through the City</span></h2>
+    <svg class="stroke" viewBox="0 0 380 22" preserveAspectRatio="none"><path d="M6 13 Q110 5 210 14 T374 8"/></svg>
+    <ul class="items">
+      <li class="reveal" style="--d:.15s"><div class="row"><span class="badge"><img data-d="yandex.ru" alt="Yandex Go"></span><span class="h">Yandex Go<span class="en">打车与外卖</span></span></div><span class="d">叫车、送餐、快递一体化，覆盖城市生活方方面面。</span></li>
+      <li class="reveal" style="--d:.27s"><div class="row"><span class="badge"><img data-d="2gis.kz" alt="2GIS"></span><span class="h">2GIS<span class="en">地图与导航</span></span></div><span class="d">本地化最强的地图，含商户信息与公交路线。</span></li>
+      <li class="reveal" style="--d:.39s"><div class="row"><span class="badge"><img data-d="onay.kz" alt="ONAY"></span><span class="h">ONAY<span class="en">公共交通支付系统</span></span></div><span class="d">公交、地铁的统一电子支付与乘车卡。</span></li>
+    </ul>
+  </div></div>
+</section>
+
+<!-- 6 · 娱乐 -->
+<section class="panel" data-label="娱乐">
+  <div class="bg"><div class="bg-inner" style="background-image:url('ppt-bg/web/fun.jpg');background-position:right top"></div></div>
+  <div class="veil"></div><div class="grain"></div><div class="vignette"></div>
+  <div class="num">05</div>
+  <div class="wrap"><div class="content">
+    <div class="kicker reveal"><span class="zh">娱乐与学习</span><span>Entertainment &amp; Learning</span></div>
+    <h2 class="reveal" style="--d:.1s">娱乐与学习应用<span class="en">Leisure and Knowledge</span></h2>
+    <svg class="stroke" viewBox="0 0 380 22" preserveAspectRatio="none"><path d="M6 9 Q120 16 230 7 T374 13"/></svg>
+    <ul class="items">
+      <li class="reveal" style="--d:.15s"><div class="row"><span class="badge"><img data-d="youtube.com" alt="YouTube"></span><span class="h">YouTube<span class="en">视频与在线学习</span></span></div><span class="d">既是娱乐平台，也是重要的自学与教育资源。</span></li>
+      <li class="reveal" style="--d:.27s"><div class="row"><span class="badge"><img data-d="tiktok.com" alt="TikTok"></span><span class="h">TikTok<span class="en">短视频文化</span></span></div><span class="d">引领潮流、塑造语言习惯，深受年轻人喜爱。</span></li>
+    </ul>
+    <p class="lead reveal" style="--d:.4s">这两类应用模糊了"娱乐"与"学习"的界线——人们在轻松浏览中获取知识。</p>
+  </div></div>
+</section>
+
+<!-- 7 · 政务 -->
+<section class="panel" data-label="政务">
+  <div class="bg"><div class="bg-inner" style="background-image:url('ppt-bg/web/egov.jpg')"></div></div>
+  <div class="veil"></div><div class="grain"></div><div class="vignette"></div>
+  <div class="num">06</div>
+  <div class="wrap"><div class="content">
+    <div class="kicker reveal"><span class="zh">政务与服务</span><span>Government &amp; Services</span></div>
+    <h2 class="reveal" style="--d:.1s">政务与公共服务应用<span class="en">Digital Government</span></h2>
+    <svg class="stroke" viewBox="0 0 380 22" preserveAspectRatio="none"><path d="M6 12 Q100 6 190 13 T374 9"/></svg>
+    <ul class="items">
+      <li class="reveal" style="--d:.15s"><div class="row"><span class="badge"><img data-d="egov.kz" alt="eGov.kz"></span><span class="h">eGov.kz<span class="en">电子政府</span></span></div><span class="d">在线办理证件、证明与各类公共服务，足不出户。</span></li>
+      <li class="reveal" style="--d:.27s"><div class="row"><span class="badge"><img data-d="egov.kz" alt="mGov"></span><span class="h">mGov<span class="en">移动政务</span></span></div><span class="d">手机端政务应用，随时查询与申请政府服务。</span></li>
+      <li class="reveal" style="--d:.39s"><div class="row"><span class="badge num">03</span><span class="h">数字签名与电子文件<span class="en">e-Documents</span></span></div><span class="d">电子签名让合同、申请与文件全程线上完成。</span></li>
+    </ul>
+  </div></div>
+</section>
+
+<!-- 8 · 购物与外卖 -->
+<section class="panel" data-label="购物">
+  <div class="bg"><div class="bg-inner" style="background-image:url('ppt-bg/web/shopping.jpg')"></div></div>
+  <div class="veil"></div><div class="grain"></div><div class="vignette"></div>
+  <div class="num">07</div>
+  <div class="wrap"><div class="content">
+    <div class="kicker reveal"><span class="zh">购物与外卖</span><span>Shopping &amp; Delivery</span></div>
+    <h2 class="reveal" style="--d:.1s">购物与外卖应用<span class="en">Online Shopping &amp; Delivery</span></h2>
+    <svg class="stroke" viewBox="0 0 380 22" preserveAspectRatio="none"><path d="M6 11 Q120 4 220 13 T374 10"/></svg>
+    <ul class="items">
+      <li class="reveal" style="--d:.15s"><div class="row"><span class="badge"><img data-d="kaspi.kz" alt="Kaspi Shop"></span><span class="h">Kaspi 商城<span class="en">在线购物与分期</span></span></div><span class="d">从电子产品到日用品，配合分期付款十分普及。</span></li>
+      <li class="reveal" style="--d:.27s"><div class="row"><span class="badge multi"><img data-d="wolt.com" alt="Wolt"><img data-d="glovoapp.com" alt="Glovo"></span><span class="h">Wolt &amp; Glovo<span class="en">外卖与配送</span></span></div><span class="d">餐饮、超市与药品配送，方便快捷。</span></li>
+      <li class="reveal" style="--d:.39s"><div class="row"><span class="badge"><img data-d="arbuz.kz" alt="Arbuz.kz"></span><span class="h">Arbuz.kz<span class="en">生鲜网购</span></span></div><span class="d">生鲜与日用品的在线超市，送货到家。</span></li>
+    </ul>
+  </div></div>
+</section>
+
+<!-- 9 · 趋势 -->
+<section class="panel" data-label="趋势">
+  <div class="bg"><div class="bg-inner" style="background-image:url('ppt-bg/web/trends.jpg');background-position:right top"></div></div>
+  <div class="veil"></div><div class="grain"></div><div class="vignette"></div>
+  <div class="num">08</div>
+  <div class="wrap"><div class="content">
+    <div class="kicker reveal"><span class="zh">趋势</span><span>Trends</span></div>
+    <h2 class="reveal" style="--d:.1s">走向数字化社会<span class="en">Toward a Digital Society</span></h2>
+    <svg class="stroke" viewBox="0 0 380 22" preserveAspectRatio="none"><path d="M6 13 Q110 5 220 12 T374 7"/></svg>
+    <ul class="items">
+      <li class="reveal" style="--d:.15s"><div class="row"><span class="badge num">01</span><span class="h">超级应用化<span class="en">Super-apps</span></span></div><span class="d">一个 App 满足多种需求，如 Kaspi 集支付、购物、服务于一体。</span></li>
+      <li class="reveal" style="--d:.27s"><div class="row"><span class="badge num">02</span><span class="h">无现金支付普及<span class="en">Cashless Everywhere</span></span></div><span class="d">扫码与非接触支付成为日常默认，现金使用持续下降。</span></li>
+      <li class="reveal" style="--d:.39s"><div class="row"><span class="badge num">03</span><span class="h">政务与服务上线<span class="en">Services Go Online</span></span></div><span class="d">政府、银行、零售全面数字化，生活越来越便捷。</span></li>
+    </ul>
+  </div></div>
+</section>
+
+<!-- 10 · 总结 -->
+<section class="panel" data-label="总结">
+  <div class="bg"><div class="bg-inner" style="background-image:url('ppt-bg/web/closing.jpg');background-position:center bottom"></div></div>
+  <div class="veil"></div><div class="grain"></div><div class="vignette"></div>
+  <div class="seal" style="right:7%;top:11%;">数字<br>生活</div>
+  <div class="num">09</div>
+  <div class="wrap"><div class="content" style="max-width:78%">
+    <div class="kicker reveal"><span class="zh">总结</span><span>Conclusion</span></div>
+    <h2 class="reveal" style="--d:.1s">这些应用如何改变日常生活<span class="en">A Digital Way of Life</span></h2>
+    <svg class="stroke" viewBox="0 0 380 22" preserveAspectRatio="none"><path d="M6 11 Q120 4 220 13 T374 9"/></svg>
+    <div class="grid">
+      <div class="card reveal" style="--d:.2s"><div class="n">01</div><h3>无现金社会</h3><p>Kaspi 与移动支付让交易瞬间完成，现金逐渐退场。</p></div>
+      <div class="card reveal" style="--d:.32s"><div class="n">02</div><h3>连接与协作</h3><p>社交与通讯应用打破时空，重塑工作与人际方式。</p></div>
+      <div class="card reveal" style="--d:.44s"><div class="n">03</div><h3>数字化趋势</h3><p>哈萨克斯坦正快速迈向高度数字化的现代社会。</p></div>
+    </div>
+    <p class="lead reveal" style="--d:.56s;max-width:100%">从支付到出行、从社交到学习，手机应用已成为哈萨克斯坦日常生活不可或缺的一部分。</p>
+    <p class="lead reveal" style="--d:.68s;font-family:'Cormorant Garamond';font-style:italic;letter-spacing:.12em;color:var(--gold)">谢谢观看 · Thank You — IBRAGIMOVA AIGERIM · KazNU</p>
+  </div></div>
+</section>
+
+<script>
+  // 应用图标：先用 DuckDuckGo，失败回退 Google favicon
+  document.querySelectorAll('img[data-d]').forEach(im=>{
+    const d=im.dataset.d;
+    im.referrerPolicy='no-referrer';im.loading='lazy';
+    im.src='https://icons.duckduckgo.com/ip3/'+d+'.ico';
+    im.onerror=()=>{im.onerror=null;im.src='https://www.google.com/s2/favicons?domain='+d+'&sz=128';};
+  });
+
+  const panels=[...document.querySelectorAll('.panel')];
+  // 导航点
+  const dots=document.getElementById('dots');
+  panels.forEach((p,k)=>{
+    const a=document.createElement('a');a.href='#';a.dataset.k=k;
+    a.innerHTML='<span>'+(p.dataset.label||'')+'</span>';
+    a.onclick=e=>{e.preventDefault();p.scrollIntoView({behavior:'smooth'});};
+    dots.appendChild(a);
+  });
+  const dotEls=[...dots.children];
+
+  // 进入视口 → 揭示 + 激活导航
+  const io=new IntersectionObserver(entries=>{
+    entries.forEach(en=>{
+      if(en.isIntersecting){
+        en.target.classList.add('in');
+        const k=panels.indexOf(en.target);
+        dotEls.forEach((d,i)=>d.classList.toggle('active',i===k));
+      }
+    });
+  },{threshold:.35});
+  panels.forEach(p=>io.observe(p));
+
+  // 进度条 + 视差
+  const bgs=panels.map(p=>p.querySelector('.bg'));
+  function onScroll(){
+    const st=window.scrollY, h=document.documentElement.scrollHeight-window.innerHeight;
+    document.getElementById('progress').style.width=(st/h*100)+'%';
+    const vh=window.innerHeight;
+    panels.forEach((p,i)=>{
+      const r=p.getBoundingClientRect();
+      if(r.bottom>0 && r.top<vh){
+        const offset=(r.top+r.height/2 - vh/2);
+        bgs[i].style.transform='translateY('+(offset*-0.08)+'px)';
+      }
+    });
+  }
+  let ticking=false;
+  window.addEventListener('scroll',()=>{
+    if(!ticking){requestAnimationFrame(()=>{onScroll();ticking=false;});ticking=true;}
+  },{passive:true});
+  onScroll();
+
+  // 键盘翻页
+  let cur=0;
+  function goto(k){cur=Math.max(0,Math.min(panels.length-1,k));panels[cur].scrollIntoView({behavior:'smooth'});}
+  window.addEventListener('keydown',e=>{
+    if(e.key==='ArrowDown'||e.key==='PageDown'){e.preventDefault();goto(cur+1);}
+    else if(e.key==='ArrowUp'||e.key==='PageUp'){e.preventDefault();goto(cur-1);}
+  });
+  // 跟踪当前区块（供键盘用）
+  new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting)cur=panels.indexOf(en.target);}),{threshold:.5})
+    .observe&&panels.forEach(p=>new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting)cur=panels.indexOf(en.target);}),{threshold:.5}).observe(p));
+</script>
+</body>
+</html>
