@@ -56,11 +56,8 @@
   .author .zh{font-family:"Noto Serif SC";font-weight:400;letter-spacing:.2em;font-size:.7em;margin-left:.32em;color:var(--soft);}
   .uni{margin-top:1.1vh;font-weight:300;font-size:clamp(15px,2.3vh,22px);letter-spacing:.1em;color:var(--soft);}
   .uni .en{display:block;font-family:"Cormorant Garamond",serif;font-style:italic;font-size:.86em;letter-spacing:.12em;color:var(--gold);margin-top:.4vh;}
-  .hero-orn{width:clamp(132px,17vh,164px);aspect-ratio:302/186;margin:3vh auto 3.4vh;
-    background:url('ppt-bg/kz/orn-medallion.png') center/contain no-repeat;
-    animation:ornIn 1.3s cubic-bezier(.22,1.1,.36,1) .4s both, ornGlow 4.2s ease-in-out 1.8s infinite;}
-  @keyframes ornIn{from{opacity:0;transform:scale(.55) rotate(-10deg)}to{opacity:.96;transform:none}}
-  @keyframes ornGlow{0%,100%{filter:drop-shadow(0 2px 9px rgba(226,183,102,.16))}50%{filter:drop-shadow(0 3px 18px rgba(226,183,102,.5))}}
+  .hero-orn{width:13vh;height:1px;background:var(--line);margin:4vh auto;position:relative;}
+  .hero-orn::after{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:7px;height:7px;background:var(--gold);border-radius:50%;box-shadow:0 0 10px rgba(226,183,102,.8);}
   .hero h1{font-weight:500;font-size:clamp(30px,6vh,66px);line-height:1.45;letter-spacing:.05em;max-width:18em;margin:0 auto;
     text-shadow:0 2px 24px rgba(0,0,0,.6);}
   .hero h1 .mark{color:var(--gold);}
@@ -96,20 +93,12 @@
   h2{font-weight:500;font-size:clamp(28px,5vh,56px);letter-spacing:.04em;line-height:1.2;text-shadow:0 2px 18px rgba(0,0,0,.55);}
   h2 .en{display:block;font-family:"Cormorant Garamond",serif;font-style:italic;font-weight:400;font-size:clamp(16px,2.8vh,30px);letter-spacing:.08em;color:var(--gold);margin-top:.6vh;}
 
-  /* 哈萨克纹样分隔（真实 ою-өрнек），由中心向两侧揭开 */
-  .orn-div{position:relative;width:min(300px,54vw);height:54px;margin:2.8vh 0 0;
-    background:url('ppt-bg/kz/orn-divider.png') left center/contain no-repeat;
-    opacity:0;transform:translateY(8px);clip-path:inset(0 50% 0 50%);
-    transition:opacity .8s ease .28s, transform 1s cubic-bezier(.2,.7,.2,1) .28s, clip-path 1.05s cubic-bezier(.2,.7,.2,1) .28s;}
-  .panel.in .orn-div{opacity:.95;transform:none;clip-path:inset(0 0 0 0);}
-  /* 金色流光（沿纹样形状的高光扫过） */
-  .orn-div::after{content:"";position:absolute;inset:0;pointer-events:none;
-    -webkit-mask:url('ppt-bg/kz/orn-divider.png') left center/contain no-repeat;
-            mask:url('ppt-bg/kz/orn-divider.png') left center/contain no-repeat;
-    background:linear-gradient(100deg,transparent 38%,rgba(255,244,214,.95) 50%,transparent 62%);
-    background-size:260% 100%;background-position:210% 0;opacity:0;}
-  .panel.in .orn-div::after{animation:ornShine 1.7s ease 1.15s 1 forwards;}
-  @keyframes ornShine{0%{background-position:210% 0;opacity:0}18%{opacity:1}100%{background-position:-60% 0;opacity:0}}
+  /* 金色细分隔 */
+  .orn-div{display:flex;align-items:center;gap:10px;margin:2.8vh 0 0;width:min(300px,46vw);
+    opacity:0;transform:translateY(10px);transition:opacity 1s ease .3s,transform 1s ease .3s;}
+  .panel.in .orn-div{opacity:1;transform:none;}
+  .orn-div::before{content:"";width:7px;height:7px;border:1px solid var(--gold);transform:rotate(45deg);flex:0 0 auto;}
+  .orn-div::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,var(--gold),rgba(226,183,102,0));}
 
   .lead{margin-top:3vh;font-weight:300;font-size:clamp(16px,2.6vh,24px);line-height:1.75;color:var(--soft);max-width:34em;}
 
@@ -154,7 +143,7 @@
     #scrub{display:none;} #heroMobile{display:block;}
     .hero-veil{background:linear-gradient(180deg,rgba(11,15,19,.55) 0%,rgba(11,15,19,.1) 40%,rgba(11,15,19,.4) 70%,rgba(11,15,19,.88) 100%);}
     .panel{min-height:100svh;}
-    .bg{inset:-10% -2%;} .bg-inner{background-position:68% center;}
+    .bg{inset:-10% -2%;} .bg-inner{background-position:center center;}
     .veil{background:linear-gradient(180deg,rgba(11,15,19,.9) 0%,rgba(11,15,19,.55) 38%,rgba(11,15,19,.55) 66%,rgba(11,15,19,.92) 100%)!important;}
     .wrap{max-width:100%;padding:13vh 24px;}
     .content{max-width:100%;}
@@ -184,9 +173,7 @@
   @media (max-width:430px){ .wrap{padding:12vh 20px;} ul.items li .d{padding-left:0;margin-top:8px;} }
 
   @media (prefers-reduced-motion:reduce){
-    .reveal,.orn-div,.num{opacity:1!important;transform:none!important;clip-path:none!important;} .bg-inner{transition:none;}
-    .hero-orn{animation:none;opacity:.96;}
-    .orn-div::after{display:none;}
+    .reveal,.orn-div,.num{opacity:1!important;transform:none!important;} .bg-inner{transition:none;}
     #eagle img{animation:none;} .scrolldown .arrow{animation:none;}
   }
 </style>
@@ -370,10 +357,17 @@
     im.onerror=()=>{im.onerror=()=>{im.onerror=null;im.src='https://icons.duckduckgo.com/ip3/'+d+'.ico';};im.src='https://www.google.com/s2/favicons?domain='+d+'&sz=128';};
   });
 
-  // 区块背景注入
-  document.querySelectorAll('.panel[data-bg]').forEach(p=>{
-    p.querySelector('.bg-inner').style.backgroundImage="url('"+p.dataset.bg+"')";
-  });
+  // 区块背景注入：移动端用 9:16，桌面端用 16:9（按文件名自动切换）
+  function setBgs(){
+    const m=matchMedia('(max-width:760px)').matches;
+    document.querySelectorAll('.panel[data-bg]').forEach(p=>{
+      const src=m? p.dataset.bg.replace('-16x9','-9x16') : p.dataset.bg;
+      const inner=p.querySelector('.bg-inner');
+      if(inner.dataset.cur!==src){ inner.style.backgroundImage="url('"+src+"')"; inner.dataset.cur=src; }
+    });
+  }
+  setBgs();
+  addEventListener('resize',setBgs,{passive:true});
 
   const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
   const hero=document.getElementById('hero');
